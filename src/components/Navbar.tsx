@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Brain, User, Settings, Wallet } from "lucide-react";
+import { Brain, User, Settings, Wallet, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Navbar = () => {
   const location = useLocation();
+  const { signOut } = useAuth();
   
   const isActive = (path: string) => location.pathname === path;
   
@@ -62,6 +64,15 @@ export const Navbar = () => {
                 <span className="hidden sm:inline">Mi Perfil</span>
               </Button>
             </Link>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => signOut()}
+              title="Cerrar sesión"
+              className="hidden md:flex"
+            >
+              <LogOut className="w-5 h-5" />
+            </Button>
           </div>
         </div>
       </div>
