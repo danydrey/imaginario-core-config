@@ -57,6 +57,31 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        imagination: {
+          DEFAULT: "hsl(var(--imagination))",
+          glow: "hsl(var(--imagination-glow))",
+        },
+        emotion: {
+          DEFAULT: "hsl(var(--emotion))",
+          glow: "hsl(var(--emotion-glow))",
+        },
+        sensory: {
+          DEFAULT: "hsl(var(--sensory))",
+          glow: "hsl(var(--sensory-glow))",
+        },
+      },
+      backgroundImage: {
+        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-warm': 'var(--gradient-warm)',
+        'gradient-hero': 'var(--gradient-hero)',
+      },
+      boxShadow: {
+        'glow': 'var(--shadow-glow)',
+        'soft': 'var(--shadow-soft)',
+      },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+        'bounce': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
       },
       borderRadius: {
         lg: "var(--radius)",
