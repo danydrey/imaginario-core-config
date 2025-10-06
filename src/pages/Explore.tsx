@@ -1,126 +1,166 @@
+import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
-import { Card } from "@/components/ui/card";
+import { ExperienceCard } from "@/components/ExperienceCard";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, MessageCircle, Share2, Sparkles, Brain, Eye } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Search, Loader2 } from "lucide-react";
 
-const experiences = [
-  {
-    id: 1,
-    title: "Amanecer en las Montañas",
-    author: "María González",
-    category: "Sensorial",
-    type: "Visual",
-    likes: 234,
-    comments: 45,
-    gradient: "from-orange-400 to-pink-500",
-  },
-  {
-    id: 2,
-    title: "Melodía del Océano",
-    author: "Carlos Ruiz",
-    category: "Cognitivo",
-    type: "Auditivo",
-    likes: 189,
-    comments: 32,
-    gradient: "from-blue-400 to-cyan-500",
-  },
-  {
-    id: 3,
-    title: "Recuerdo de Infancia",
-    author: "Ana Martínez",
-    category: "Emocional",
-    type: "Memoria",
-    likes: 456,
-    comments: 78,
-    gradient: "from-purple-400 to-pink-500",
-  },
-  {
-    id: 4,
-    title: "Jardín de Aromas",
-    author: "Luis Fernández",
-    category: "Sensorial",
-    type: "Olfativo",
-    likes: 312,
-    comments: 54,
-    gradient: "from-green-400 to-emerald-500",
-  },
+interface Experience {
+  id: string;
+  title: string;
+  description: string;
+  sensory_type: string;
+  tags: string[];
+  votes_count: number;
+  views_count: number;
+  is_featured: boolean;
+  profiles: { username: string };
+}
+
+const sensoryTypes = [
+  { value: "all", label: "Todos", emoji: "🌟" },
+  { value: "visual", label: "Visual", emoji: "👁️" },
+  { value: "auditory", label: "Auditivo", emoji: "👂" },
+  { value: "tactile", label: "Táctil", emoji: "✋" },
+  { value: "emotional", label: "Emocional", emoji: "❤️" },
+  { value: "cognitive", label: "Cognitivo", emoji: "🧠" },
+  { value: "synesthetic", label: "Sinestésico", emoji: "🌈" }
 ];
 
 export default function Explore() {
+  const { user } = useAuth();
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [userVotes, setUserVotes] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedType, setSelectedType] = useState("all");
+
+  const fetchExperiences = async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from("experiences")
+        .select(`
+          *,
+          profiles:creator_id (username)
+        `)
+        .order("votes_count", { ascending: false });
+
+      if (selectedType !== "all") {
+        query = query.eq("sensory_type", selectedType);
+      }
+
+      if (searchQuery) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      setExperiences(data || []);
+
+      // Fetch user votes
+      if (user) {
+        const { data: votesData } = await supabase
+          .from("experience_votes")
+          .select("experience_id")
+          .eq("user_id", user.id);
+
+        if (votesData) {
+          setUserVotes(new Set(votesData.map(v => v.experience_id)));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching experiences:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchExperiences();
+  }, [user, selectedType]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchExperiences();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
-      <main className="container mx-auto px-4 pt-24 pb-12">
-        {/* Header */}
-        <div className="mb-8 space-y-4">
-          <h1 className="text-4xl font-bold">
-            <span className="bg-gradient-primary bg-clip-text text-transparent">
-              Explorar
-            </span>
-            {" "}Experiencias
-          </h1>
-          <p className="text-muted-foreground">
-            Descubre mundos sensoriales y cognitivos compartidos por la comunidad
-          </p>
+      <div className="container mx-auto px-4 py-8 pt-24">
+        <div className="mb-8 space-y-6">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Explorar Experiencias</h1>
+            <p className="text-muted-foreground">Descubre y vota por tus experiencias sensoriales favoritas</p>
+          </div>
+
+          {/* Search */}
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Buscar experiencias..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button type="submit">Buscar</Button>
+          </form>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-2">
+            {sensoryTypes.map((type) => (
+              <Badge
+                key={type.value}
+                variant={selectedType === type.value ? "default" : "outline"}
+                className={`cursor-pointer px-4 py-2 text-sm ${
+                  selectedType === type.value ? "bg-gradient-to-r from-primary to-secondary" : ""
+                }`}
+                onClick={() => setSelectedType(type.value)}
+              >
+                <span className="mr-2">{type.emoji}</span>
+                {type.label}
+              </Badge>
+            ))}
+          </div>
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
-          <Button variant="default" size="sm">Todos</Button>
-          <Button variant="ghost" size="sm">Sensorial</Button>
-          <Button variant="ghost" size="sm">Cognitivo</Button>
-          <Button variant="ghost" size="sm">Emocional</Button>
-        </div>
-
-        {/* Experience Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {experiences.map((exp) => (
-            <Card key={exp.id} className="overflow-hidden group cursor-pointer hover:shadow-glow transition-all">
-              {/* Image Placeholder with Gradient */}
-              <div className={`h-48 bg-gradient-to-br ${exp.gradient} relative overflow-hidden`}>
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-                <div className="absolute top-4 right-4">
-                  <Badge className="bg-white/20 backdrop-blur-sm border-white/40">
-                    {exp.type}
-                  </Badge>
-                </div>
-                <div className="absolute bottom-4 left-4">
-                  {exp.category === "Sensorial" && <Sparkles className="w-6 h-6 text-white" />}
-                  {exp.category === "Cognitivo" && <Brain className="w-6 h-6 text-white" />}
-                  {exp.category === "Emocional" && <Heart className="w-6 h-6 text-white fill-white" />}
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-4 space-y-3">
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">{exp.title}</h3>
-                  <p className="text-sm text-muted-foreground">por {exp.author}</p>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center justify-between pt-2">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <button className="flex items-center gap-1 hover:text-emotion transition-colors">
-                      <Heart className="w-4 h-4" />
-                      <span>{exp.likes}</span>
-                    </button>
-                    <button className="flex items-center gap-1 hover:text-primary transition-colors">
-                      <MessageCircle className="w-4 h-4" />
-                      <span>{exp.comments}</span>
-                    </button>
-                  </div>
-                  <button className="text-muted-foreground hover:text-primary transition-colors">
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </main>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : experiences.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No se encontraron experiencias</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {experiences.map((exp) => (
+              <ExperienceCard
+                key={exp.id}
+                id={exp.id}
+                title={exp.title}
+                description={exp.description}
+                sensoryType={exp.sensory_type}
+                tags={exp.tags}
+                votesCount={exp.votes_count}
+                viewsCount={exp.views_count}
+                isFeatured={exp.is_featured}
+                creatorUsername={exp.profiles?.username || "Usuario"}
+                userHasVoted={userVotes.has(exp.id)}
+                onVoteChange={fetchExperiences}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

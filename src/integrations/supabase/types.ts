@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      experience_votes: {
+        Row: {
+          created_at: string
+          experience_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          experience_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          experience_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experience_votes_experience_id_fkey"
+            columns: ["experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "experience_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      experiences: {
+        Row: {
+          created_at: string
+          creator_id: string
+          description: string
+          id: string
+          is_featured: boolean | null
+          media_type: string | null
+          media_url: string | null
+          sensory_type: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          views_count: number
+          votes_count: number
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          description: string
+          id?: string
+          is_featured?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          sensory_type: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          views_count?: number
+          votes_count?: number
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          description?: string
+          id?: string
+          is_featured?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          sensory_type?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          views_count?: number
+          votes_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experiences_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
