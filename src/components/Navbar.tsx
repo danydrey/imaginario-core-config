@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Brain, User, Settings, Wallet, LogOut } from "lucide-react";
+import { Brain, User, Settings, Wallet, LogOut, Plus } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -53,6 +53,12 @@ export const Navbar = () => {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
+            <Link to="/create">
+              <Button variant="hero" size="sm" className="gap-2">
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Crear</span>
+              </Button>
+            </Link>
             <Link to="/settings">
               <Button variant="ghost" size="icon" className="hidden md:flex">
                 <Settings className="w-5 h-5" />

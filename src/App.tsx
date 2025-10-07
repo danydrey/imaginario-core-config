@@ -9,6 +9,7 @@ import Onboarding from "./pages/Onboarding";
 import Auth from "./pages/Auth";
 import Index from "./pages/Index";
 import Explore from "./pages/Explore";
+import Create from "./pages/Create";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
 import Settings from "./pages/Settings";
@@ -28,6 +29,7 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/explore" element={<ProtectedRoute><Explore /></ProtectedRoute>} />
+            <Route path="/create" element={<ProtectedRoute><Create /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
