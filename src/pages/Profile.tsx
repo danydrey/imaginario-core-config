@@ -5,8 +5,89 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings, MapPin, Calendar, Award, Sparkles } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+
+interface Profile {
+  username: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  created_at: string;
+}
+
+interface Experience {
+  id: string;
+  title: string;
+  sensory_type: string;
+  created_at: string;
+  votes_count: number;
+}
+
+interface TokenData {
+  balance: number;
+}
 
 export default function Profile() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [tokens, setTokens] = useState<TokenData>({ balance: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchData = async () => {
+      try {
+        // Fetch profile
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (profileData) setProfile(profileData);
+
+        // Fetch experiences
+        const { data: expData } = await supabase
+          .from('experiences')
+          .select('id, title, sensory_type, created_at, votes_count')
+          .eq('creator_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (expData) setExperiences(expData);
+
+        // Fetch tokens
+        const { data: tokenData } = await supabase
+          .from('user_tokens')
+          .select('balance')
+          .eq('user_id', user.id)
+          .single();
+
+        if (tokenData) setTokens(tokenData);
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="container mx-auto px-4 pt-24 pb-12">
+          <p>Cargando perfil...</p>
+        </main>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -24,38 +105,35 @@ export default function Profile() {
             <div className="flex flex-col md:flex-row gap-6 items-start md:items-end -mt-16 relative">
               {/* Avatar */}
               <Avatar className="w-32 h-32 border-4 border-background shadow-glow">
-                <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=imaginar" />
-                <AvatarFallback className="bg-gradient-primary text-white text-2xl">IM</AvatarFallback>
+                <AvatarImage src={profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.username || 'user'}`} />
+                <AvatarFallback className="bg-gradient-primary text-white text-2xl">
+                  {profile?.username?.substring(0, 2).toUpperCase() || 'U'}
+                </AvatarFallback>
               </Avatar>
 
               {/* Info */}
               <div className="flex-1 space-y-3 pt-16 md:pt-0">
                 <div>
-                  <h1 className="text-3xl font-bold mb-1">Usuario Imaginar</h1>
-                  <p className="text-muted-foreground">@imaginar_user</p>
+                  <h1 className="text-3xl font-bold mb-1">{profile?.username || 'Usuario'}</h1>
+                  <p className="text-muted-foreground">@{profile?.username || 'usuario'}</p>
                 </div>
 
                 <p className="text-sm max-w-2xl">
-                  Explorando las dimensiones sensoriales y cognitivas de la experiencia humana. 
-                  Compartiendo momentos que trascienden lo ordinario.
+                  {profile?.bio || 'Explorando las dimensiones sensoriales y cognitivas de la experiencia humana.'}
                 </p>
 
                 <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    <span>Madrid, España</span>
-                  </div>
-                  <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
-                    <span>Miembro desde Enero 2025</span>
+                    <span>Miembro desde {new Date(profile?.created_at || Date.now()).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</span>
                   </div>
                 </div>
               </div>
 
               {/* Actions */}
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2" onClick={() => navigate('/settings')}>
                 <Settings className="w-4 h-4" />
-                Editar Perfil
+                Ajustes
               </Button>
             </div>
           </div>
@@ -65,24 +143,28 @@ export default function Profile() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card className="p-6 text-center hover:shadow-glow transition-all cursor-pointer">
             <div className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-1">
-              42
+              {experiences.length}
             </div>
             <div className="text-sm text-muted-foreground">Experiencias</div>
           </Card>
           
           <Card className="p-6 text-center hover:shadow-glow transition-all cursor-pointer">
-            <div className="text-3xl font-bold text-emotion mb-1">1.2K</div>
-            <div className="text-sm text-muted-foreground">Seguidores</div>
+            <div className="text-3xl font-bold text-emotion mb-1">
+              {experiences.reduce((acc, exp) => acc + exp.votes_count, 0)}
+            </div>
+            <div className="text-sm text-muted-foreground">Me Gusta Totales</div>
           </Card>
           
-          <Card className="p-6 text-center hover:shadow-glow transition-all cursor-pointer">
-            <div className="text-3xl font-bold text-imagination mb-1">890</div>
-            <div className="text-sm text-muted-foreground">Me Gusta</div>
-          </Card>
-          
-          <Card className="p-6 text-center hover:shadow-glow transition-all cursor-pointer">
-            <div className="text-3xl font-bold text-sensory mb-1">350</div>
+          <Card className="p-6 text-center hover:shadow-glow transition-all cursor-pointer" onClick={() => navigate('/wallet')}>
+            <div className="text-3xl font-bold text-sensory mb-1">{tokens.balance}</div>
             <div className="text-sm text-muted-foreground">Tokens</div>
+          </Card>
+          
+          <Card className="p-6 text-center hover:shadow-glow transition-all cursor-pointer">
+            <div className="text-3xl font-bold text-imagination mb-1">
+              {experiences.filter(e => new Date(e.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length}
+            </div>
+            <div className="text-sm text-muted-foreground">Esta Semana</div>
           </Card>
         </div>
 
@@ -95,19 +177,39 @@ export default function Profile() {
           </TabsList>
 
           <TabsContent value="experiences" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Card key={i} className="overflow-hidden group cursor-pointer hover:shadow-glow transition-all">
-                  <div className="h-40 bg-gradient-to-br from-imagination to-emotion relative">
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold mb-1">Experiencia #{i}</h3>
-                    <p className="text-sm text-muted-foreground">Hace 2 días</p>
-                  </div>
-                </Card>
-              ))}
-            </div>
+            {experiences.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {experiences.map((exp) => (
+                  <Card key={exp.id} className="overflow-hidden group cursor-pointer hover:shadow-glow transition-all">
+                    <div className={`h-40 bg-gradient-to-br ${
+                      exp.sensory_type === 'visual' ? 'from-purple-500 to-pink-500' :
+                      exp.sensory_type === 'auditivo' ? 'from-blue-500 to-cyan-500' :
+                      exp.sensory_type === 'tacto' ? 'from-green-500 to-emerald-500' :
+                      exp.sensory_type === 'olfato' ? 'from-yellow-500 to-orange-500' :
+                      'from-red-500 to-pink-500'
+                    } relative`}>
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+                      <div className="absolute bottom-2 right-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded text-white text-xs">
+                        ❤️ {exp.votes_count}
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold mb-1 line-clamp-1">{exp.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(exp.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                      </p>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">Aún no has creado experiencias</p>
+                <Button variant="hero" className="mt-4" onClick={() => navigate('/create')}>
+                  Crear Primera Experiencia
+                </Button>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="map" className="space-y-4">

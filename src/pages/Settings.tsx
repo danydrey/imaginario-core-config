@@ -8,16 +8,31 @@ import {
   Bell, 
   Lock, 
   Eye, 
-  Moon, 
-  Globe, 
   HelpCircle, 
   FileText, 
   MessageSquare,
   UserX,
   LogOut
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 
 export default function Settings() {
+  const { signOut } = useAuth();
+  const [settings, setSettings] = useState({
+    pushNotifs: true,
+    emailNotifs: false,
+    commentNotifs: true,
+    profilePublic: true,
+    showMap: true,
+    analytics: true,
+    darkMode: false,
+    animations: true,
+  });
+
+  const handleToggle = (key: keyof typeof settings) => {
+    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+  };
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -48,7 +63,11 @@ export default function Settings() {
                   <Label htmlFor="push-notifs" className="text-base">Notificaciones Push</Label>
                   <p className="text-sm text-muted-foreground">Recibe alertas en tiempo real</p>
                 </div>
-                <Switch id="push-notifs" defaultChecked />
+                <Switch 
+                  id="push-notifs" 
+                  checked={settings.pushNotifs}
+                  onCheckedChange={() => handleToggle('pushNotifs')}
+                />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -56,7 +75,11 @@ export default function Settings() {
                   <Label htmlFor="email-notifs" className="text-base">Notificaciones por Email</Label>
                   <p className="text-sm text-muted-foreground">Resumen semanal de actividad</p>
                 </div>
-                <Switch id="email-notifs" />
+                <Switch 
+                  id="email-notifs" 
+                  checked={settings.emailNotifs}
+                  onCheckedChange={() => handleToggle('emailNotifs')}
+                />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -64,7 +87,11 @@ export default function Settings() {
                   <Label htmlFor="comment-notifs" className="text-base">Comentarios</Label>
                   <p className="text-sm text-muted-foreground">Cuando alguien comenta tus experiencias</p>
                 </div>
-                <Switch id="comment-notifs" defaultChecked />
+                <Switch 
+                  id="comment-notifs" 
+                  checked={settings.commentNotifs}
+                  onCheckedChange={() => handleToggle('commentNotifs')}
+                />
               </div>
             </div>
           </Card>
@@ -81,7 +108,11 @@ export default function Settings() {
                   <Label htmlFor="profile-public" className="text-base">Perfil Público</Label>
                   <p className="text-sm text-muted-foreground">Permite que otros vean tu perfil</p>
                 </div>
-                <Switch id="profile-public" defaultChecked />
+                <Switch 
+                  id="profile-public" 
+                  checked={settings.profilePublic}
+                  onCheckedChange={() => handleToggle('profilePublic')}
+                />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -89,7 +120,11 @@ export default function Settings() {
                   <Label htmlFor="show-map" className="text-base">Mostrar Mapa Sensorial</Label>
                   <p className="text-sm text-muted-foreground">Visible para otros usuarios</p>
                 </div>
-                <Switch id="show-map" defaultChecked />
+                <Switch 
+                  id="show-map" 
+                  checked={settings.showMap}
+                  onCheckedChange={() => handleToggle('showMap')}
+                />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -97,7 +132,11 @@ export default function Settings() {
                   <Label htmlFor="analytics" className="text-base">Análisis de Datos</Label>
                   <p className="text-sm text-muted-foreground">Ayúdanos a mejorar la experiencia</p>
                 </div>
-                <Switch id="analytics" defaultChecked />
+                <Switch 
+                  id="analytics" 
+                  checked={settings.analytics}
+                  onCheckedChange={() => handleToggle('analytics')}
+                />
               </div>
             </div>
           </Card>
@@ -114,7 +153,11 @@ export default function Settings() {
                   <Label htmlFor="dark-mode" className="text-base">Modo Oscuro</Label>
                   <p className="text-sm text-muted-foreground">Tema oscuro para la aplicación</p>
                 </div>
-                <Switch id="dark-mode" />
+                <Switch 
+                  id="dark-mode" 
+                  checked={settings.darkMode}
+                  onCheckedChange={() => handleToggle('darkMode')}
+                />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -122,7 +165,11 @@ export default function Settings() {
                   <Label htmlFor="animations" className="text-base">Animaciones</Label>
                   <p className="text-sm text-muted-foreground">Efectos visuales y transiciones</p>
                 </div>
-                <Switch id="animations" defaultChecked />
+                <Switch 
+                  id="animations" 
+                  checked={settings.animations}
+                  onCheckedChange={() => handleToggle('animations')}
+                />
               </div>
             </div>
           </Card>
@@ -164,7 +211,11 @@ export default function Settings() {
 
               <Separator />
               
-              <Button variant="destructive" className="w-full justify-start gap-3 mt-4">
+              <Button 
+                variant="destructive" 
+                className="w-full justify-start gap-3 mt-4"
+                onClick={signOut}
+              >
                 <LogOut className="w-5 h-5" />
                 Cerrar Sesión
               </Button>

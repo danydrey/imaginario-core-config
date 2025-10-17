@@ -1,17 +1,54 @@
 import { Navbar } from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Wallet as WalletIcon, TrendingUp, Gift, ArrowUpRight, ArrowDownRight, Coins } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
-const transactions = [
-  { id: 1, type: "earned", amount: 50, description: "Experiencia destacada", date: "Hace 2 horas" },
-  { id: 2, type: "spent", amount: 20, description: "Regalo virtual", date: "Hace 1 día" },
-  { id: 3, type: "earned", amount: 100, description: "Logro desbloqueado", date: "Hace 2 días" },
-  { id: 4, type: "earned", amount: 30, description: "Interacción comunitaria", date: "Hace 3 días" },
-];
+interface TokenData {
+  balance: number;
+  total_earned: number;
+  total_spent: number;
+}
 
 export default function Wallet() {
+  const { user } = useAuth();
+  const [tokens, setTokens] = useState<TokenData>({ balance: 0, total_earned: 0, total_spent: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchTokens = async () => {
+      try {
+        const { data } = await supabase
+          .from('user_tokens')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (data) setTokens(data);
+      } catch (error) {
+        console.error('Error fetching tokens:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTokens();
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="container mx-auto px-4 pt-24 pb-12">
+          <p>Cargando billetera...</p>
+        </main>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -42,7 +79,7 @@ export default function Wallet() {
                   </div>
                   <div>
                     <p className="text-white/80 text-sm">Balance Total</p>
-                    <h2 className="text-4xl font-bold text-white">350 Tokens</h2>
+                    <h2 className="text-4xl font-bold text-white">{tokens.balance} Tokens</h2>
                   </div>
                 </div>
                 <Button variant="glass" size="lg" className="text-white border-white/20">
@@ -53,20 +90,19 @@ export default function Wallet() {
 
               <div className="flex gap-4">
                 <div className="flex-1 glass rounded-lg p-4">
-                  <p className="text-white/80 text-sm mb-1">Ganados este mes</p>
+                  <p className="text-white/80 text-sm mb-1">Total Ganado</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-white">+180</span>
+                    <span className="text-2xl font-bold text-white">+{tokens.total_earned}</span>
                     <span className="text-sm text-white/60 flex items-center gap-1">
                       <TrendingUp className="w-3 h-3" />
-                      12%
                     </span>
                   </div>
                 </div>
                 <div className="flex-1 glass rounded-lg p-4">
-                  <p className="text-white/80 text-sm mb-1">Gastados este mes</p>
+                  <p className="text-white/80 text-sm mb-1">Total Gastado</p>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-white">-80</span>
-                    <span className="text-sm text-white/60">vs mes anterior</span>
+                    <span className="text-2xl font-bold text-white">-{tokens.total_spent}</span>
+                    <span className="text-sm text-white/60">histórico</span>
                   </div>
                 </div>
               </div>
@@ -116,31 +152,8 @@ export default function Wallet() {
         {/* Transaction History */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-6">Historial de Transacciones</h2>
-          <div className="space-y-4">
-            {transactions.map((tx) => (
-              <div key={tx.id} className="flex items-center justify-between p-4 rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    tx.type === 'earned' ? 'bg-green-500/20' : 'bg-red-500/20'
-                  }`}>
-                    {tx.type === 'earned' ? (
-                      <ArrowDownRight className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <ArrowUpRight className="w-5 h-5 text-red-500" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-medium">{tx.description}</p>
-                    <p className="text-sm text-muted-foreground">{tx.date}</p>
-                  </div>
-                </div>
-                <div className={`text-lg font-semibold ${
-                  tx.type === 'earned' ? 'text-green-500' : 'text-red-500'
-                }`}>
-                  {tx.type === 'earned' ? '+' : '-'}{tx.amount}
-                </div>
-              </div>
-            ))}
+          <div className="text-center py-8 text-muted-foreground">
+            <p>Las transacciones aparecerán aquí cuando se implementen funcionalidades de ganancia y gasto de tokens.</p>
           </div>
         </Card>
       </main>
