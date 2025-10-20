@@ -17,10 +17,9 @@ import { z } from "zod";
 const sensoryTypes = [
   { value: "visual", label: "Visual 👁️" },
   { value: "auditivo", label: "Auditivo 👂" },
-  { value: "tactil", label: "Táctil ✋" },
-  { value: "olfativo", label: "Olfativo 👃" },
-  { value: "gustativo", label: "Gustativo 👅" },
-  { value: "multisensorial", label: "Multisensorial 🌟" },
+  { value: "tacto", label: "Tacto ✋" },
+  { value: "olfato", label: "Olfato 👃" },
+  { value: "gusto", label: "Gusto 👅" },
 ];
 
 const experienceSchema = z.object({

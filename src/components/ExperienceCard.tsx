@@ -23,20 +23,18 @@ interface ExperienceCardProps {
 
 const sensoryIcons: Record<string, string> = {
   visual: "👁️",
-  auditory: "👂",
-  tactile: "✋",
-  emotional: "❤️",
-  cognitive: "🧠",
-  synesthetic: "🌈"
+  auditivo: "👂",
+  tacto: "✋",
+  olfato: "👃",
+  gusto: "👅",
 };
 
 const sensoryColors: Record<string, string> = {
   visual: "from-purple-500 to-pink-500",
-  auditory: "from-blue-500 to-cyan-500",
-  tactile: "from-green-500 to-emerald-500",
-  emotional: "from-red-500 to-rose-500",
-  cognitive: "from-yellow-500 to-orange-500",
-  synesthetic: "from-indigo-500 to-purple-500"
+  auditivo: "from-blue-500 to-cyan-500",
+  tacto: "from-green-500 to-emerald-500",
+  olfato: "from-yellow-500 to-orange-500",
+  gusto: "from-red-500 to-rose-500",
 };
 
 export const ExperienceCard = ({

@@ -23,11 +23,10 @@ interface Experience {
 const sensoryTypes = [
   { value: "all", label: "Todos", emoji: "🌟" },
   { value: "visual", label: "Visual", emoji: "👁️" },
-  { value: "auditory", label: "Auditivo", emoji: "👂" },
-  { value: "tactile", label: "Táctil", emoji: "✋" },
-  { value: "emotional", label: "Emocional", emoji: "❤️" },
-  { value: "cognitive", label: "Cognitivo", emoji: "🧠" },
-  { value: "synesthetic", label: "Sinestésico", emoji: "🌈" }
+  { value: "auditivo", label: "Auditivo", emoji: "👂" },
+  { value: "tacto", label: "Tacto", emoji: "✋" },
+  { value: "olfato", label: "Olfato", emoji: "👃" },
+  { value: "gusto", label: "Gusto", emoji: "👅" },
 ];
 
 export default function Explore() {
