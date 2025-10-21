@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Sparkles, Brain, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-sensory.jpg";
 
 export const Hero = () => {
@@ -47,13 +48,17 @@ export const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
-            <Button variant="hero" size="xl" className="group">
-              Comenzar Ahora
-              <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-            </Button>
-            <Button variant="glass" size="xl">
-              Explorar Experiencias
-            </Button>
+            <Link to="/create">
+              <Button variant="hero" size="xl" className="group">
+                Comenzar Ahora
+                <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              </Button>
+            </Link>
+            <Link to="/explore">
+              <Button variant="glass" size="xl">
+                Explorar Experiencias
+              </Button>
+            </Link>
           </div>
 
           {/* Feature Pills */}
