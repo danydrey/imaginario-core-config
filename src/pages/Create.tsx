@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
@@ -32,12 +32,45 @@ const experienceSchema = z.object({
 const Create = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get("edit");
+  
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [sensoryType, setSensoryType] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState("");
+
+  // Load experience data if editing
+  useEffect(() => {
+    if (editId && user) {
+      loadExperience();
+    }
+  }, [editId, user]);
+
+  const loadExperience = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("experiences")
+        .select("*")
+        .eq("id", editId)
+        .eq("creator_id", user!.id)
+        .single();
+
+      if (error) throw error;
+      
+      if (data) {
+        setTitle(data.title);
+        setDescription(data.description);
+        setSensoryType(data.sensory_type);
+        setTags(data.tags || []);
+      }
+    } catch (error: any) {
+      toast.error("Error al cargar la experiencia");
+      navigate("/");
+    }
+  };
 
   const addTag = () => {
     const trimmedTag = currentTag.trim().toLowerCase();
@@ -70,29 +103,47 @@ const Create = () => {
 
       setLoading(true);
 
-      const { data, error } = await supabase
-        .from("experiences")
-        .insert({
-          title: validatedData.title,
-          description: validatedData.description,
-          sensory_type: validatedData.sensory_type,
-          tags: validatedData.tags,
-          creator_id: user.id,
-        })
-        .select()
-        .single();
+      if (editId) {
+        // Update existing experience
+        const { error } = await supabase
+          .from("experiences")
+          .update({
+            title: validatedData.title,
+            description: validatedData.description,
+            sensory_type: validatedData.sensory_type,
+            tags: validatedData.tags,
+          })
+          .eq("id", editId)
+          .eq("creator_id", user.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success("¡Experiencia actualizada! ✨");
+      } else {
+        // Create new experience
+        const { data, error } = await supabase
+          .from("experiences")
+          .insert({
+            title: validatedData.title,
+            description: validatedData.description,
+            sensory_type: validatedData.sensory_type,
+            tags: validatedData.tags,
+            creator_id: user.id,
+          })
+          .select()
+          .single();
 
-      toast.success("¡Experiencia creada exitosamente! 🎨");
+        if (error) throw error;
+        toast.success("¡Experiencia creada exitosamente! 🎨");
+      }
+      
       navigate("/");
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         const firstError = error.errors[0];
         toast.error(firstError.message);
       } else {
-        console.error("Error creating experience:", error);
-        toast.error("Error al crear la experiencia. Intenta nuevamente.");
+        console.error("Error saving experience:", error);
+        toast.error("Error al guardar la experiencia. Intenta nuevamente.");
       }
     } finally {
       setLoading(false);
@@ -106,14 +157,24 @@ const Create = () => {
       <div className="container mx-auto px-4 pt-24 pb-12">
         <div className="max-w-2xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">Crear Nueva Experiencia</h1>
-            <p className="text-muted-foreground">Comparte tu contenido sensorial con la comunidad</p>
+            <h1 className="text-4xl font-bold mb-2">
+              {editId ? "Editar Experiencia" : "Crear Nueva Experiencia"}
+            </h1>
+            <p className="text-muted-foreground">
+              {editId 
+                ? "Actualiza los detalles de tu experiencia" 
+                : "Comparte tu contenido sensorial con la comunidad"}
+            </p>
           </div>
 
           <Card>
             <CardHeader>
               <CardTitle>Detalles de la Experiencia</CardTitle>
-              <CardDescription>Completa la información para crear tu experiencia sensorial</CardDescription>
+              <CardDescription>
+                {editId 
+                  ? "Modifica la información de tu experiencia sensorial"
+                  : "Completa la información para crear tu experiencia sensorial"}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -224,10 +285,10 @@ const Create = () => {
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Creando...
+                        {editId ? "Actualizando..." : "Creando..."}
                       </>
                     ) : (
-                      "Crear Experiencia"
+                      editId ? "Actualizar Experiencia" : "Crear Experiencia"
                     )}
                   </Button>
                   <Button

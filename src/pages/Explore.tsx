@@ -17,6 +17,7 @@ interface Experience {
   votes_count: number;
   views_count: number;
   is_featured: boolean;
+  creator_id: string;
   profiles: { username: string };
 }
 
@@ -153,6 +154,7 @@ export default function Explore() {
                 viewsCount={exp.views_count}
                 isFeatured={exp.is_featured}
                 creatorUsername={exp.profiles?.username || "Usuario"}
+                creatorId={exp.creator_id}
                 userHasVoted={userVotes.has(exp.id)}
                 onVoteChange={fetchExperiences}
               />

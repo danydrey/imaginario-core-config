@@ -1,8 +1,9 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Eye, Sparkles } from "lucide-react";
+import { Heart, Eye, Sparkles, Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ interface ExperienceCardProps {
   viewsCount: number;
   isFeatured: boolean;
   creatorUsername: string;
+  creatorId: string;
   userHasVoted?: boolean;
   onVoteChange?: () => void;
 }
@@ -47,13 +49,17 @@ export const ExperienceCard = ({
   viewsCount,
   isFeatured,
   creatorUsername,
+  creatorId,
   userHasVoted = false,
   onVoteChange
 }: ExperienceCardProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isVoted, setIsVoted] = useState(userHasVoted);
   const [votes, setVotes] = useState(votesCount);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const isOwner = user?.id === creatorId;
 
   const handleVote = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -96,6 +102,28 @@ export const ExperienceCard = ({
     }
   };
 
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm("¿Estás seguro de eliminar esta experiencia?")) return;
+
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from("experiences")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      toast.success("Experiencia eliminada");
+      onVoteChange?.();
+    } catch (error: any) {
+      toast.error("Error al eliminar");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-[1.02] animate-scale-in relative overflow-hidden">
       {isFeatured && (
@@ -131,11 +159,37 @@ export const ExperienceCard = ({
       </CardContent>
 
       <CardFooter className="flex justify-between items-center pt-4 border-t">
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Eye className="w-4 h-4" />
-            {viewsCount}
-          </div>
+        <div className="flex items-center gap-2">
+          {isOwner ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/create?edit=${id}`);
+                }}
+                disabled={isLoading}
+              >
+                <Edit className="w-4 h-4 mr-1" />
+                Editar
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDelete}
+                disabled={isLoading}
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </>
+          ) : (
+            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+              <Eye className="w-4 h-4" />
+              {viewsCount}
+            </div>
+          )}
         </div>
         
         <Button
