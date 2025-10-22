@@ -106,35 +106,183 @@ export type Database = {
           },
         ]
       }
+      friendships: {
+        Row: {
+          created_at: string
+          friend_id: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
           created_at: string
           id: string
+          instagram_url: string | null
           sensory_preferences: Json | null
+          tiktok_url: string | null
+          twitter_url: string | null
           updated_at: string
           username: string | null
+          website_url: string | null
+          youtube_url: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           id: string
+          instagram_url?: string | null
           sensory_preferences?: Json | null
+          tiktok_url?: string | null
+          twitter_url?: string | null
           updated_at?: string
           username?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           id?: string
+          instagram_url?: string | null
           sensory_preferences?: Json | null
+          tiktok_url?: string | null
+          twitter_url?: string | null
           updated_at?: string
           username?: string | null
+          website_url?: string | null
+          youtube_url?: string | null
         }
         Relationships: []
+      }
+      rewards: {
+        Row: {
+          cost: number
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          name: string
+          reward_type: string
+        }
+        Insert: {
+          cost: number
+          created_at?: string
+          description: string
+          id?: string
+          is_active?: boolean
+          name: string
+          reward_type: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          reward_type?: string
+        }
+        Relationships: []
+      }
+      token_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          related_experience_id: string | null
+          related_user_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description: string
+          id?: string
+          related_experience_id?: string | null
+          related_user_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          related_experience_id?: string | null
+          related_user_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_transactions_related_experience_id_fkey"
+            columns: ["related_experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_rewards: {
+        Row: {
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          redeemed_at: string
+          reward_id: string
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          redeemed_at?: string
+          reward_id: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          redeemed_at?: string
+          reward_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_tokens: {
         Row: {

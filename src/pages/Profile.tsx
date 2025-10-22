@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings, MapPin, Calendar, Award, Sparkles } from "lucide-react";
+import { Settings, Calendar, Award, Sparkles, Instagram, Twitter, Youtube, Globe } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { FriendshipManager } from "@/components/FriendshipManager";
+import { SensoryMapChart } from "@/components/SensoryMapChart";
 
 interface Profile {
   username: string | null;
@@ -131,10 +133,13 @@ export default function Profile() {
               </div>
 
               {/* Actions */}
-              <Button variant="outline" className="gap-2" onClick={() => navigate('/settings')}>
-                <Settings className="w-4 h-4" />
-                Ajustes
-              </Button>
+              <div className="flex gap-2">
+                <FriendshipManager />
+                <Button variant="outline" className="gap-2" onClick={() => navigate('/profile/edit')}>
+                  <Settings className="w-4 h-4" />
+                  Editar
+                </Button>
+              </div>
             </div>
           </div>
         </Card>
@@ -213,20 +218,7 @@ export default function Profile() {
           </TabsContent>
 
           <TabsContent value="map" className="space-y-4">
-            <Card className="p-8">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-gradient-primary rounded-full flex items-center justify-center">
-                  <MapPin className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold">Mapa Sensorial</h3>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  Visualiza tu recorrido a través de experiencias sensoriales y cognitivas
-                </p>
-                <Button variant="hero" className="mt-4">
-                  Explorar Mapa
-                </Button>
-              </div>
-            </Card>
+            <SensoryMapChart />
           </TabsContent>
 
           <TabsContent value="achievements" className="space-y-4">

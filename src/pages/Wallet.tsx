@@ -1,10 +1,12 @@
 import { Navbar } from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet as WalletIcon, TrendingUp, Gift, ArrowUpRight, ArrowDownRight, Coins } from "lucide-react";
+import { Wallet as WalletIcon, TrendingUp, ArrowDownRight, Coins } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { SendTokensDialog } from "@/components/SendTokensDialog";
+import { RedeemDialog } from "@/components/RedeemDialog";
 
 interface TokenData {
   balance: number;
@@ -12,30 +14,48 @@ interface TokenData {
   total_spent: number;
 }
 
+interface Transaction {
+  id: string;
+  amount: number;
+  transaction_type: string;
+  description: string;
+  created_at: string;
+}
+
 export default function Wallet() {
   const { user } = useAuth();
   const [tokens, setTokens] = useState<TokenData>({ balance: 0, total_earned: 0, total_spent: 0 });
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchTokens = async () => {
     if (!user) return;
+    
+    try {
+      const { data } = await supabase
+        .from('user_tokens')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
 
-    const fetchTokens = async () => {
-      try {
-        const { data } = await supabase
-          .from('user_tokens')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
+      if (data) setTokens(data);
 
-        if (data) setTokens(data);
-      } catch (error) {
-        console.error('Error fetching tokens:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const { data: txData } = await supabase
+        .from('token_transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
 
+      if (txData) setTransactions(txData);
+    } catch (error) {
+      console.error('Error fetching tokens:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchTokens();
   }, [user]);
 
@@ -112,29 +132,8 @@ export default function Wallet() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="p-6 hover:shadow-glow transition-all cursor-pointer group">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-imagination/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Gift className="w-6 h-6 text-imagination" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Enviar Regalo</h3>
-                <p className="text-sm text-muted-foreground">A otros usuarios</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6 hover:shadow-glow transition-all cursor-pointer group">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-emotion/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Coins className="w-6 h-6 text-emotion" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Canjear</h3>
-                <p className="text-sm text-muted-foreground">Por beneficios</p>
-              </div>
-            </div>
-          </Card>
+          <SendTokensDialog userBalance={tokens.balance} onSendSuccess={fetchTokens} />
+          <RedeemDialog userBalance={tokens.balance} onRedeemSuccess={fetchTokens} />
 
           <Card className="p-6 hover:shadow-glow transition-all cursor-pointer group">
             <div className="flex items-center gap-4">
@@ -143,7 +142,7 @@ export default function Wallet() {
               </div>
               <div>
                 <h3 className="font-semibold">Premium</h3>
-                <p className="text-sm text-muted-foreground">Suscripciones</p>
+                <p className="text-sm text-muted-foreground">Accede a funciones exclusivas</p>
               </div>
             </div>
           </Card>
@@ -152,9 +151,34 @@ export default function Wallet() {
         {/* Transaction History */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-6">Historial de Transacciones</h2>
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Las transacciones aparecerán aquí cuando se implementen funcionalidades de ganancia y gasto de tokens.</p>
-          </div>
+          {transactions.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No tienes transacciones aún</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {transactions.map(tx => (
+                <div key={tx.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {tx.amount > 0 ? (
+                      <ArrowDownRight className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <ArrowDownRight className="w-5 h-5 text-red-500 rotate-180" />
+                    )}
+                    <div>
+                      <p className="font-medium text-sm">{tx.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(tx.created_at).toLocaleDateString('es-ES')}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`font-bold ${tx.amount > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {tx.amount > 0 ? '+' : ''}{tx.amount}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
       </main>
     </div>

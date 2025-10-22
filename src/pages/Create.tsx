@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, X, Plus } from "lucide-react";
 import { z } from "zod";
+import { FileUpload } from "@/components/FileUpload";
 
 const sensoryTypes = [
   { value: "visual", label: "Visual 👁️" },
@@ -41,6 +42,8 @@ const Create = () => {
   const [sensoryType, setSensoryType] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState("");
+  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaType, setMediaType] = useState("");
 
   // Load experience data if editing
   useEffect(() => {
@@ -65,6 +68,8 @@ const Create = () => {
         setDescription(data.description);
         setSensoryType(data.sensory_type);
         setTags(data.tags || []);
+        setMediaUrl(data.media_url || "");
+        setMediaType(data.media_type || "");
       }
     } catch (error: any) {
       toast.error("Error al cargar la experiencia");
@@ -112,6 +117,8 @@ const Create = () => {
             description: validatedData.description,
             sensory_type: validatedData.sensory_type,
             tags: validatedData.tags,
+            media_url: mediaUrl,
+            media_type: mediaType,
           })
           .eq("id", editId)
           .eq("creator_id", user.id);
@@ -127,6 +134,8 @@ const Create = () => {
             description: validatedData.description,
             sensory_type: validatedData.sensory_type,
             tags: validatedData.tags,
+            media_url: mediaUrl,
+            media_type: mediaType,
             creator_id: user.id,
           })
           .select()
@@ -224,6 +233,17 @@ const Create = () => {
                     {description.length}/1000 caracteres
                   </p>
                 </div>
+
+                {/* File Upload */}
+                <FileUpload
+                  sensoryType={sensoryType}
+                  onUpload={(url, type) => {
+                    setMediaUrl(url);
+                    setMediaType(type);
+                  }}
+                  currentFileUrl={mediaUrl}
+                  currentFileType={mediaType}
+                />
 
                 {/* Tags */}
                 <div className="space-y-2">
