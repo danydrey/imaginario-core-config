@@ -57,11 +57,18 @@ export function FileUpload({ sensoryType, onUpload, currentFileUrl, currentFileT
 
     try {
       setUploading(true);
-      
-      // Create file path
+
+      // Get current user to scope storage path to their folder (required by RLS)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Debes iniciar sesión para subir archivos");
+        return;
+      }
+
+      // Create file path scoped to user folder
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const filePath = `${user.id}/${fileName}`;
 
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage

@@ -54,43 +54,10 @@ export function RedeemDialog({ userBalance, onRedeemSuccess }: RedeemDialogProps
     try {
       setLoading(true);
 
-      // Deduct tokens
-      const { error: tokenError } = await supabase
-        .from('user_tokens')
-        .update({
-          balance: userBalance - reward.cost,
-          total_spent: userBalance
-        })
-        .eq('user_id', user.id);
-
-      if (tokenError) throw tokenError;
-
-      // Record transaction
-      await supabase
-        .from('token_transactions')
-        .insert({
-          user_id: user.id,
-          amount: -reward.cost,
-          transaction_type: 'spend',
-          description: `Canjeado: ${reward.name}`
-        });
-
-      // Add reward to user
-      const expiresAt = reward.reward_type.includes('premium') 
-        ? new Date(Date.now() + (
-            reward.reward_type === 'premium_day' ? 1 * 24 * 60 * 60 * 1000 :
-            reward.reward_type === 'premium_week' ? 7 * 24 * 60 * 60 * 1000 :
-            30 * 24 * 60 * 60 * 1000
-          )).toISOString()
-        : null;
-
-      await supabase
-        .from('user_rewards')
-        .insert({
-          user_id: user.id,
-          reward_id: reward.id,
-          expires_at: expiresAt
-        });
+      const { error: rpcError } = await supabase.rpc('redeem_reward', {
+        p_reward_id: reward.id,
+      });
+      if (rpcError) throw rpcError;
 
       toast.success(`¡${reward.name} canjeado exitosamente! ✨`);
       setOpen(false);

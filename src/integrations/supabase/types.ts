@@ -327,7 +327,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      redeem_reward: { Args: { p_reward_id: string }; Returns: string }
+      transfer_tokens: {
+        Args: { p_amount: number; p_recipient_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
