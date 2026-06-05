@@ -41,12 +41,12 @@ export function SendTokensDialog({ userBalance, onSendSuccess }: SendTokensDialo
     try {
       setLoading(true);
 
-      // Find recipient by username
+      // Find recipient by username (server-side RPC enforces the rest)
       const { data: recipientProfile, error: profileError } = await supabase
         .from('profiles')
         .select('id')
         .eq('username', recipientUsername)
-        .single();
+        .maybeSingle();
 
       if (profileError || !recipientProfile) {
         toast.error("Usuario no encontrado");
@@ -58,52 +58,11 @@ export function SendTokensDialog({ userBalance, onSendSuccess }: SendTokensDialo
         return;
       }
 
-      // Deduct from sender
-      const { error: senderError } = await supabase
-        .from('user_tokens')
-        .update({
-          balance: userBalance - tokenAmount,
-          total_spent: userBalance
-        })
-        .eq('user_id', user.id);
-
-      if (senderError) throw senderError;
-
-      // Get recipient balance
-      const { data: recipientTokens } = await supabase
-        .from('user_tokens')
-        .select('balance, total_earned')
-        .eq('user_id', recipientProfile.id)
-        .single();
-
-      // Add to recipient
-      await supabase
-        .from('user_tokens')
-        .update({
-          balance: (recipientTokens?.balance || 0) + tokenAmount,
-          total_earned: (recipientTokens?.total_earned || 0) + tokenAmount
-        })
-        .eq('user_id', recipientProfile.id);
-
-      // Record transactions
-      await supabase
-        .from('token_transactions')
-        .insert([
-          {
-            user_id: user.id,
-            amount: -tokenAmount,
-            transaction_type: 'transfer_sent',
-            description: `Enviado a @${recipientUsername}`,
-            related_user_id: recipientProfile.id
-          },
-          {
-            user_id: recipientProfile.id,
-            amount: tokenAmount,
-            transaction_type: 'transfer_received',
-            description: `Recibido de @${user.email?.split('@')[0]}`,
-            related_user_id: user.id
-          }
-        ]);
+      const { error: rpcError } = await supabase.rpc('transfer_tokens', {
+        p_recipient_id: recipientProfile.id,
+        p_amount: tokenAmount,
+      });
+      if (rpcError) throw rpcError;
 
       toast.success(`¡${tokenAmount} tokens enviados a @${recipientUsername}! 🎁`);
       setOpen(false);
