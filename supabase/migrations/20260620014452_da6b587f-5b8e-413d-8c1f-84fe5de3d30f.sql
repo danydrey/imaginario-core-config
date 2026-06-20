@@ -1,0 +1,2 @@
+DO $$ DECLARE r record; BEGIN FOR r IN SELECT policyname FROM pg_policies WHERE schemaname='public' AND tablename='user_rewards' AND cmd='INSERT' LOOP EXECUTE format('DROP POLICY IF EXISTS %I ON public.user_rewards', r.policyname); END LOOP; END $$;
+REVOKE INSERT ON public.user_rewards FROM authenticated, anon;
