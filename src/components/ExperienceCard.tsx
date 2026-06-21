@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, Eye, Sparkles, Edit, Trash2 } from "lucide-react";
+import { Sparkles as Resonance, Eye, Leaf, Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,11 +32,11 @@ const sensoryIcons: Record<string, string> = {
 };
 
 const sensoryColors: Record<string, string> = {
-  visual: "from-purple-500 to-pink-500",
-  auditivo: "from-blue-500 to-cyan-500",
-  tacto: "from-green-500 to-emerald-500",
-  olfato: "from-yellow-500 to-orange-500",
-  gusto: "from-red-500 to-rose-500",
+  visual: "from-imagination to-secondary",
+  auditivo: "from-secondary to-imagination",
+  tacto: "from-sensory to-primary",
+  olfato: "from-sand to-accent",
+  gusto: "from-accent to-emotion",
 };
 
 export const ExperienceCard = ({
@@ -81,7 +81,7 @@ export const ExperienceCard = ({
         if (error) throw error;
         setIsVoted(false);
         setVotes(prev => prev - 1);
-        toast.success("Voto eliminado");
+        toast.success("Resonancia retirada");
       } else {
         // Add vote
         const { error } = await supabase
@@ -91,11 +91,11 @@ export const ExperienceCard = ({
         if (error) throw error;
         setIsVoted(true);
         setVotes(prev => prev + 1);
-        toast.success("¡Voto registrado!");
+        toast.success("✨ Resonó contigo");
       }
       onVoteChange?.();
     } catch (error: any) {
-      toast.error("Error al votar");
+      toast.error("No se pudo resonar");
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -125,28 +125,28 @@ export const ExperienceCard = ({
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-[1.02] animate-scale-in relative overflow-hidden">
+    <Card className="group hover:shadow-soft transition-smooth hover:-translate-y-1 animate-scale-in relative overflow-hidden border-border/40 bg-card/60 backdrop-blur-sm">
       {isFeatured && (
         <div className="absolute top-2 right-2 z-10">
-          <Badge className="bg-gradient-to-r from-primary to-secondary text-white">
-            <Sparkles className="w-3 h-3 mr-1" />
-            Destacado
+          <Badge className="bg-gradient-to-r from-accent to-emotion text-accent-foreground border-0">
+            <Leaf className="w-3 h-3 mr-1" />
+            Memorable
           </Badge>
         </div>
       )}
       
-      <div className={`h-2 bg-gradient-to-r ${sensoryColors[sensoryType]}`} />
+      <div className={`h-1 bg-gradient-to-r ${sensoryColors[sensoryType]}`} />
       
       <CardContent className="pt-6 space-y-4">
         <div className="space-y-2">
           <div className="flex items-start gap-2">
             <span className="text-2xl">{sensoryIcons[sensoryType]}</span>
             <div className="flex-1">
-              <h3 className="font-semibold text-lg leading-tight">{title}</h3>
-              <p className="text-sm text-muted-foreground">por @{creatorUsername}</p>
+              <h3 className="font-display text-xl leading-tight tracking-tight">{title}</h3>
+              <p className="text-xs text-muted-foreground italic">compartido por @{creatorUsername}</p>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
+          <p className="text-sm text-foreground/70 line-clamp-3 leading-relaxed">{description}</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -197,9 +197,10 @@ export const ExperienceCard = ({
           size="sm"
           onClick={handleVote}
           disabled={isLoading}
-          className={isVoted ? "bg-gradient-to-r from-primary to-secondary" : ""}
+          className={isVoted ? "bg-gradient-to-r from-accent to-emotion border-0" : ""}
+          title={isVoted ? "Quitar resonancia" : "Resonó conmigo"}
         >
-          <Heart className={`w-4 h-4 mr-1 ${isVoted ? "fill-current" : ""}`} />
+          <Resonance className={`w-4 h-4 mr-1 ${isVoted ? "fill-current" : ""}`} />
           {votes}
         </Button>
       </CardFooter>
