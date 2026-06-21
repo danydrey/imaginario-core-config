@@ -17,6 +17,11 @@ interface Profile {
   avatar_url: string | null;
   bio: string | null;
   created_at: string;
+  instagram_url?: string | null;
+  twitter_url?: string | null;
+  youtube_url?: string | null;
+  tiktok_url?: string | null;
+  website_url?: string | null;
 }
 
 interface Experience {
@@ -124,11 +129,31 @@ export default function Profile() {
                   {profile?.bio || 'Explorando las dimensiones sensoriales y cognitivas de la experiencia humana.'}
                 </p>
 
-                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground items-center">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     <span>Miembro desde {new Date(profile?.created_at || Date.now()).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}</span>
                   </div>
+                  {profile?.instagram_url && (
+                    <a href={profile.instagram_url} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-smooth" title="Instagram">
+                      <Instagram className="w-4 h-4" />
+                    </a>
+                  )}
+                  {profile?.twitter_url && (
+                    <a href={profile.twitter_url} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-smooth" title="Twitter / X">
+                      <Twitter className="w-4 h-4" />
+                    </a>
+                  )}
+                  {profile?.youtube_url && (
+                    <a href={profile.youtube_url} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-smooth" title="YouTube">
+                      <Youtube className="w-4 h-4" />
+                    </a>
+                  )}
+                  {profile?.website_url && (
+                    <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-smooth" title="Sitio web">
+                      <Globe className="w-4 h-4" />
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -185,17 +210,17 @@ export default function Profile() {
             {experiences.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {experiences.map((exp) => (
-                  <Card key={exp.id} className="overflow-hidden group cursor-pointer hover:shadow-glow transition-all">
+                  <Card key={exp.id} className="overflow-hidden group cursor-pointer hover:shadow-soft hover:-translate-y-1 transition-smooth border-border/40">
                     <div className={`h-40 bg-gradient-to-br ${
-                      exp.sensory_type === 'visual' ? 'from-purple-500 to-pink-500' :
-                      exp.sensory_type === 'auditivo' ? 'from-blue-500 to-cyan-500' :
-                      exp.sensory_type === 'tacto' ? 'from-green-500 to-emerald-500' :
-                      exp.sensory_type === 'olfato' ? 'from-yellow-500 to-orange-500' :
-                      'from-red-500 to-pink-500'
+                      exp.sensory_type === 'visual' ? 'from-imagination to-secondary' :
+                      exp.sensory_type === 'auditivo' ? 'from-secondary to-imagination' :
+                      exp.sensory_type === 'tacto' ? 'from-sensory to-primary' :
+                      exp.sensory_type === 'olfato' ? 'from-sand to-accent' :
+                      'from-accent to-emotion'
                     } relative`}>
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
                       <div className="absolute bottom-2 right-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded text-white text-xs">
-                        ❤️ {exp.votes_count}
+                        ✨ {exp.votes_count}
                       </div>
                     </div>
                     <div className="p-4">

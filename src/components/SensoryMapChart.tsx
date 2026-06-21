@@ -73,11 +73,11 @@ export function SensoryMapChart() {
 
   const maxValue = Math.max(...Object.values(data), 10);
   const sensoryTypes = [
-    { key: 'visual', label: 'Visual 👁️', color: 'hsl(263, 70%, 60%)' },
-    { key: 'auditivo', label: 'Auditivo 👂', color: 'hsl(200, 70%, 60%)' },
-    { key: 'tacto', label: 'Tacto ✋', color: 'hsl(142, 70%, 45%)' },
-    { key: 'olfato', label: 'Olfato 👃', color: 'hsl(43, 96%, 56%)' },
-    { key: 'gusto', label: 'Gusto 👅', color: 'hsl(0, 72%, 60%)' }
+    { key: 'visual',    label: 'Visual 👁️',   color: 'hsl(var(--imagination))' },
+    { key: 'auditivo',  label: 'Auditivo 👂', color: 'hsl(var(--secondary))' },
+    { key: 'tacto',     label: 'Tacto ✋',    color: 'hsl(var(--sensory))' },
+    { key: 'olfato',    label: 'Olfato 👃',   color: 'hsl(var(--sand))' },
+    { key: 'gusto',     label: 'Gusto 👅',    color: 'hsl(var(--accent))' }
   ];
 
   const mostExplored = sensoryTypes.reduce((max, type) => 
@@ -90,12 +90,12 @@ export function SensoryMapChart() {
 
   return (
     <div className="space-y-6">
-      <Card className="p-6">
-        <h3 className="text-xl font-semibold mb-4">Tu Exploración Sensorial</h3>
-        <p className="text-muted-foreground mb-6 text-sm">
-          El Mapa Sensorial visualiza tu exploración a través de las cinco dimensiones sensoriales. 
-          Cada experiencia creada o con la que interactúas añade un punto en tu mapa personal, 
-          mostrando tu balance sensorial único.
+      <Card className="p-6 border-border/40 bg-card/60 backdrop-blur-sm">
+        <p className="text-xs uppercase tracking-[0.25em] text-accent mb-2">Atlas personal</p>
+        <h3 className="font-display text-2xl mb-3 tracking-tight">Tu paisaje sensorial</h3>
+        <p className="text-muted-foreground mb-6 text-sm leading-relaxed italic">
+          Cada momento que compartes o con el que resuenas deja una huella en uno de los cinco sentidos.
+          Este mapa te muestra cómo habitas el mundo — qué dimensión exploras más, cuál te falta por descubrir.
         </p>
 
         <div className="space-y-4">
@@ -125,19 +125,19 @@ export function SensoryMapChart() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="p-6">
-          <h4 className="font-semibold mb-2">Sentido Más Explorado</h4>
-          <div className="text-3xl mb-1">{mostExplored.label.split(' ')[1]}</div>
-          <p className="text-sm text-muted-foreground">
-            {data[mostExplored.key as keyof SensoryData]} experiencias en {mostExplored.label.split(' ')[0]}
+        <Card className="p-6 border-border/40 bg-card/60">
+          <p className="text-xs uppercase tracking-wider text-accent mb-2">Donde más habitas</p>
+          <div className="text-4xl mb-1">{mostExplored.label.split(' ')[1]}</div>
+          <p className="text-sm text-muted-foreground italic">
+            {data[mostExplored.key as keyof SensoryData]} momentos en {mostExplored.label.split(' ')[0].toLowerCase()}
           </p>
         </Card>
 
-        <Card className="p-6">
-          <h4 className="font-semibold mb-2">Sentido Menos Explorado</h4>
-          <div className="text-3xl mb-1">{leastExplored.label.split(' ')[1]}</div>
-          <p className="text-sm text-muted-foreground">
-            {data[leastExplored.key as keyof SensoryData]} experiencias en {leastExplored.label.split(' ')[0]}
+        <Card className="p-6 border-border/40 bg-card/60">
+          <p className="text-xs uppercase tracking-wider text-accent mb-2">Una invitación</p>
+          <div className="text-4xl mb-1">{leastExplored.label.split(' ')[1]}</div>
+          <p className="text-sm text-muted-foreground italic">
+            Explora más este sentido — solo {data[leastExplored.key as keyof SensoryData]} momento(s) hasta ahora.
           </p>
         </Card>
       </div>

@@ -201,15 +201,18 @@ export function FriendshipManager() {
           </TabsList>
 
           <TabsContent value="add" className="space-y-4">
+            <p className="text-sm text-muted-foreground italic">
+              Escribe el nombre de usuario exacto (sin @) de la persona con quien quieres conectar.
+            </p>
             <form onSubmit={handleSendRequest} className="flex gap-2">
               <Input
-                placeholder="Buscar usuario..."
+                placeholder="nombredeusuario"
                 value={searchUsername}
                 onChange={(e) => setSearchUsername(e.target.value)}
               />
               <Button type="submit" disabled={loading || !searchUsername.trim()}>
-                <Search className="w-4 h-4 mr-2" />
-                Buscar
+                <UserPlus className="w-4 h-4 mr-2" />
+                Enviar solicitud
               </Button>
             </form>
           </TabsContent>
