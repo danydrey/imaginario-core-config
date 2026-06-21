@@ -223,7 +223,7 @@ const Create = () => {
               <form onSubmit={handleSubmit} className="space-y-6 pt-6">
                 {/* Step 1: Sentido + Título */}
                 {step === 1 && (
-                  <div className="space-y-6 animate-fade-in">
+                  <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="space-y-3">
                       <Label>¿Por cuál sentido entró esta experiencia?</Label>
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
@@ -266,7 +266,7 @@ const Create = () => {
 
                 {/* Step 2: Descripción */}
                 {step === 2 && (
-                  <div className="space-y-3 animate-fade-in">
+                  <div className="space-y-3 animate-in fade-in duration-500">
                     <Label htmlFor="description">Cuéntalo con tus palabras</Label>
                     <p className="text-sm text-muted-foreground italic">
                       ¿Dónde estabas? ¿Qué sentiste en el cuerpo? ¿Qué te recordó? No tiene que ser perfecto, solo honesto.
@@ -286,7 +286,7 @@ const Create = () => {
 
                 {/* Step 3: Media */}
                 {step === 3 && (
-                  <div className="space-y-3 animate-fade-in">
+                  <div className="space-y-3 animate-in fade-in duration-500">
                     <Label>Un fragmento del momento (opcional)</Label>
                     <p className="text-sm text-muted-foreground italic">
                       Una imagen, un sonido, un video. Solo si lo tienes — la palabra también basta.
@@ -305,7 +305,7 @@ const Create = () => {
 
                 {/* Step 4: Tags + review */}
                 {step === 4 && (
-                  <div className="space-y-6 animate-fade-in">
+                  <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="space-y-2">
                       <Label htmlFor="tags">Palabras que lo evocan (opcional)</Label>
                       <p className="text-sm text-muted-foreground italic">
