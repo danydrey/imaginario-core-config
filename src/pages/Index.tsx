@@ -67,10 +67,15 @@ const Index = () => {
       <Navbar />
       <Hero />
       
-      <section className="container mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Experiencias Destacadas</h2>
-          <p className="text-muted-foreground">Descubre contenido sensorial único creado por la comunidad</p>
+      <section className="container mx-auto px-4 py-16">
+        <div className="mb-12 max-w-2xl">
+          <p className="text-xs uppercase tracking-[0.25em] text-accent mb-3">Atlas sensorial</p>
+          <h2 className="font-display text-4xl md:text-5xl tracking-tight mb-3">
+            Momentos que <span className="italic text-accent">resonaron</span>
+          </h2>
+          <p className="text-muted-foreground leading-relaxed">
+            Una colección viva de percepciones, recuerdos y emociones compartidas por personas como tú. Cada experiencia es un fragmento del mundo visto, oído, tocado, olido o saboreado.
+          </p>
         </div>
 
         {loading ? (
@@ -78,8 +83,9 @@ const Index = () => {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : experiences.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No hay experiencias aún. ¡Sé el primero en crear una!</p>
+          <div className="text-center py-16 max-w-md mx-auto">
+            <p className="font-display text-2xl italic text-accent mb-2">El atlas está esperando</p>
+            <p className="text-muted-foreground">Aún nadie ha compartido un momento. Sé la primera voz de este lugar.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
