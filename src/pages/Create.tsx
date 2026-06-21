@@ -11,16 +11,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, X, Plus } from "lucide-react";
+import { Loader2, X, Plus, ArrowLeft, ArrowRight, Leaf, Check } from "lucide-react";
 import { z } from "zod";
 import { FileUpload } from "@/components/FileUpload";
 
 const sensoryTypes = [
-  { value: "visual", label: "Visual 👁️" },
-  { value: "auditivo", label: "Auditivo 👂" },
-  { value: "tacto", label: "Tacto ✋" },
-  { value: "olfato", label: "Olfato 👃" },
-  { value: "gusto", label: "Gusto 👅" },
+  { value: "visual", label: "Visual", icon: "👁️", hint: "lo que viste" },
+  { value: "auditivo", label: "Auditivo", icon: "👂", hint: "lo que escuchaste" },
+  { value: "tacto", label: "Tacto", icon: "✋", hint: "lo que sentiste al tocar" },
+  { value: "olfato", label: "Olfato", icon: "👃", hint: "el aroma que recuerdas" },
+  { value: "gusto", label: "Gusto", icon: "👅", hint: "el sabor que te marcó" },
 ];
 
 const experienceSchema = z.object({
@@ -44,6 +44,8 @@ const Create = () => {
   const [currentTag, setCurrentTag] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
   const [mediaType, setMediaType] = useState("");
+  const [step, setStep] = useState(1);
+  const totalSteps = 4;
 
   // Load experience data if editing
   useEffect(() => {
@@ -159,99 +161,160 @@ const Create = () => {
     }
   };
 
+  const canAdvance = () => {
+    if (step === 1) return sensoryType !== "" && title.trim().length >= 3;
+    if (step === 2) return description.trim().length >= 10;
+    return true;
+  };
+
+  const stepLabels = ["Sentido", "Esencia", "Memoria", "Resonancia"];
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       
       <div className="container mx-auto px-4 pt-24 pb-12">
         <div className="max-w-2xl mx-auto">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-smooth mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" /> Volver
+          </button>
+
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2">
-              {editId ? "Editar Experiencia" : "Crear Nueva Experiencia"}
+            <p className="text-xs uppercase tracking-[0.25em] text-accent mb-3">
+              {editId ? "Reescribir un momento" : "Compartir un momento"}
+            </p>
+            <h1 className="font-display text-4xl md:text-5xl tracking-tight mb-2">
+              {editId ? "Editar experiencia" : (
+                <>Una <span className="italic text-accent">experiencia</span> nace</>
+              )}
             </h1>
-            <p className="text-muted-foreground">
-              {editId 
-                ? "Actualiza los detalles de tu experiencia" 
-                : "Comparte tu contenido sensorial con la comunidad"}
+            <p className="text-muted-foreground leading-relaxed">
+              Tómate tu tiempo. No estás publicando — estás dejando huella de algo que sentiste.
             </p>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Detalles de la Experiencia</CardTitle>
-              <CardDescription>
-                {editId 
-                  ? "Modifica la información de tu experiencia sensorial"
-                  : "Completa la información para crear tu experiencia sensorial"}
-              </CardDescription>
-            </CardHeader>
+          {/* Stepper */}
+          <div className="flex items-center gap-2 mb-8">
+            {stepLabels.map((label, i) => {
+              const n = i + 1;
+              const active = n === step;
+              const done = n < step;
+              return (
+                <div key={label} className="flex-1 flex flex-col items-center gap-2">
+                  <div className={`h-1 w-full rounded-full transition-smooth ${
+                    done ? "bg-accent" : active ? "bg-accent/60" : "bg-muted"
+                  }`} />
+                  <span className={`text-[10px] uppercase tracking-wider ${
+                    active ? "text-accent font-medium" : done ? "text-foreground/60" : "text-muted-foreground"
+                  }`}>
+                    {done && <Check className="inline w-3 h-3 mr-0.5" />}{label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <Card className="border-border/40 bg-card/60 backdrop-blur-sm">
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Title */}
-                <div className="space-y-2">
-                  <Label htmlFor="title">Título *</Label>
-                  <Input
-                    id="title"
-                    placeholder="Ej: Sinfonía de colores al atardecer"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    maxLength={100}
-                    required
-                  />
-                </div>
+              <form onSubmit={handleSubmit} className="space-y-6 pt-6">
+                {/* Step 1: Sentido + Título */}
+                {step === 1 && (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <div className="space-y-3">
+                      <Label>¿Por cuál sentido entró esta experiencia?</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                        {sensoryTypes.map((t) => (
+                          <button
+                            key={t.value}
+                            type="button"
+                            onClick={() => setSensoryType(t.value)}
+                            className={`p-4 rounded-lg border transition-smooth text-center ${
+                              sensoryType === t.value
+                                ? "border-accent bg-accent/10 shadow-soft"
+                                : "border-border/60 hover:border-accent/50 hover:bg-accent/5"
+                            }`}
+                          >
+                            <div className="text-3xl mb-1">{t.icon}</div>
+                            <div className="text-xs font-medium">{t.label}</div>
+                          </button>
+                        ))}
+                      </div>
+                      {sensoryType && (
+                        <p className="text-xs text-muted-foreground italic">
+                          Vas a compartir {sensoryTypes.find(t => t.value === sensoryType)?.hint}.
+                        </p>
+                      )}
+                    </div>
 
-                {/* Sensory Type */}
-                <div className="space-y-2">
-                  <Label htmlFor="sensory-type">Tipo Sensorial *</Label>
-                  <Select value={sensoryType} onValueChange={setSensoryType} required>
-                    <SelectTrigger id="sensory-type">
-                      <SelectValue placeholder="Selecciona un tipo sensorial" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {sensoryTypes.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Dale un nombre a este momento</Label>
+                      <Input
+                        id="title"
+                        placeholder="Ej: La luz dorada de las cinco de la tarde"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        maxLength={100}
+                      />
+                      <p className="text-xs text-muted-foreground">{title.length}/100</p>
+                    </div>
+                  </div>
+                )}
 
-                {/* Description */}
-                <div className="space-y-2">
-                  <Label htmlFor="description">Descripción *</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Describe tu experiencia sensorial en detalle..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    maxLength={1000}
-                    rows={6}
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {description.length}/1000 caracteres
-                  </p>
-                </div>
+                {/* Step 2: Descripción */}
+                {step === 2 && (
+                  <div className="space-y-3 animate-in fade-in duration-500">
+                    <Label htmlFor="description">Cuéntalo con tus palabras</Label>
+                    <p className="text-sm text-muted-foreground italic">
+                      ¿Dónde estabas? ¿Qué sentiste en el cuerpo? ¿Qué te recordó? No tiene que ser perfecto, solo honesto.
+                    </p>
+                    <Textarea
+                      id="description"
+                      placeholder="Estaba caminando por…"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      maxLength={1000}
+                      rows={8}
+                      className="resize-none leading-relaxed"
+                    />
+                    <p className="text-xs text-muted-foreground">{description.length}/1000</p>
+                  </div>
+                )}
 
-                {/* File Upload */}
-                <FileUpload
-                  sensoryType={sensoryType}
-                  onUpload={(url, type) => {
-                    setMediaUrl(url);
-                    setMediaType(type);
-                  }}
-                  currentFileUrl={mediaUrl}
-                  currentFileType={mediaType}
-                />
+                {/* Step 3: Media */}
+                {step === 3 && (
+                  <div className="space-y-3 animate-in fade-in duration-500">
+                    <Label>Un fragmento del momento (opcional)</Label>
+                    <p className="text-sm text-muted-foreground italic">
+                      Una imagen, un sonido, un video. Solo si lo tienes — la palabra también basta.
+                    </p>
+                    <FileUpload
+                      sensoryType={sensoryType}
+                      onUpload={(url, type) => {
+                        setMediaUrl(url);
+                        setMediaType(type);
+                      }}
+                      currentFileUrl={mediaUrl}
+                      currentFileType={mediaType}
+                    />
+                  </div>
+                )}
 
-                {/* Tags */}
-                <div className="space-y-2">
-                  <Label htmlFor="tags">Etiquetas (Opcional)</Label>
+                {/* Step 4: Tags + review */}
+                {step === 4 && (
+                  <div className="space-y-6 animate-in fade-in duration-500">
+                    <div className="space-y-2">
+                      <Label htmlFor="tags">Palabras que lo evocan (opcional)</Label>
+                      <p className="text-sm text-muted-foreground italic">
+                        Para que otros puedan encontrar este momento cuando busquen algo similar.
+                      </p>
                   <div className="flex gap-2">
                     <Input
                       id="tags"
-                      placeholder="Agrega etiquetas..."
+                      placeholder="atardecer, silencio, mar…"
                       value={currentTag}
                       onChange={(e) => setCurrentTag(e.target.value)}
                       onKeyPress={(e) => {
@@ -288,38 +351,51 @@ const Create = () => {
                       ))}
                     </div>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    {tags.length}/10 etiquetas
-                  </p>
-                </div>
+                      <p className="text-xs text-muted-foreground">{tags.length}/10</p>
+                    </div>
 
-                {/* Submit Buttons */}
-                <div className="flex gap-4 pt-4">
-                  <Button
-                    type="submit"
-                    variant="hero"
-                    size="lg"
-                    className="flex-1"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {editId ? "Actualizando..." : "Creando..."}
-                      </>
-                    ) : (
-                      editId ? "Actualizar Experiencia" : "Crear Experiencia"
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    onClick={() => navigate("/")}
-                    disabled={loading}
-                  >
-                    Cancelar
-                  </Button>
+                    <div className="p-4 rounded-lg bg-accent/5 border border-accent/20 space-y-2">
+                      <p className="text-xs uppercase tracking-wider text-accent flex items-center gap-2">
+                        <Leaf className="w-3 h-3" /> Listo para compartir
+                      </p>
+                      <p className="font-display text-lg italic">"{title || "—"}"</p>
+                      <p className="text-xs text-muted-foreground">
+                        {sensoryTypes.find(t => t.value === sensoryType)?.label} · {description.length} caracteres · {mediaUrl ? "con fragmento" : "solo palabras"}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Navigation */}
+                <div className="flex gap-3 pt-6 border-t border-border/40">
+                  {step > 1 ? (
+                    <Button type="button" variant="outline" onClick={() => setStep(step - 1)} disabled={loading}>
+                      <ArrowLeft className="w-4 h-4" /> Atrás
+                    </Button>
+                  ) : (
+                    <Button type="button" variant="ghost" onClick={() => navigate("/")} disabled={loading}>
+                      Cancelar
+                    </Button>
+                  )}
+                  <div className="flex-1" />
+                  {step < totalSteps ? (
+                    <Button
+                      type="button"
+                      variant="hero"
+                      onClick={() => setStep(step + 1)}
+                      disabled={!canAdvance()}
+                    >
+                      Continuar <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Button type="submit" variant="hero" disabled={loading}>
+                      {loading ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Guardando…</>
+                      ) : (
+                        <>{editId ? "Actualizar" : "Compartir momento"} <Leaf className="w-4 h-4" /></>
+                      )}
+                    </Button>
+                  )}
                 </div>
               </form>
             </CardContent>
