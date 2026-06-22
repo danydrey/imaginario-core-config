@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      collection_experiences: {
+        Row: {
+          added_at: string
+          collection_id: string
+          experience_id: string
+        }
+        Insert: {
+          added_at?: string
+          collection_id: string
+          experience_id: string
+        }
+        Update: {
+          added_at?: string
+          collection_id?: string
+          experience_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_experiences_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_experiences_experience_id_fkey"
+            columns: ["experience_id"]
+            isOneToOne: false
+            referencedRelation: "experiences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      collections: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          emotion: string | null
+          id: string
+          sense: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          emotion?: string | null
+          id?: string
+          sense?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          emotion?: string | null
+          id?: string
+          sense?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       experience_votes: {
         Row: {
           created_at: string

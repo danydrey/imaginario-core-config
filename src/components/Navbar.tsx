@@ -34,6 +34,22 @@ export const Navbar = () => {
               Explorar
             </Link>
             <Link 
+              to="/colecciones" 
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive('/colecciones') ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              Colecciones
+            </Link>
+            <Link 
+              to="/diario" 
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive('/diario') ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              Diario
+            </Link>
+            <Link 
               to="/profile" 
               className={`text-sm font-medium transition-colors hover:text-primary ${
                 isActive('/profile') ? 'text-primary' : 'text-muted-foreground'
