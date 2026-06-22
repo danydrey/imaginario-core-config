@@ -14,6 +14,9 @@ import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import Wallet from "./pages/Wallet";
 import Settings from "./pages/Settings";
+import Diario from "./pages/Diario";
+import Colecciones from "./pages/Colecciones";
+import Coleccion from "./pages/Coleccion";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +38,9 @@ function App() {
             <Route path="/profile/edit" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
             <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/diario" element={<ProtectedRoute><Diario /></ProtectedRoute>} />
+            <Route path="/colecciones" element={<ProtectedRoute><Colecciones /></ProtectedRoute>} />
+            <Route path="/colecciones/:slug" element={<ProtectedRoute><Coleccion /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
