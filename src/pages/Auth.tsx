@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -137,6 +137,16 @@ const Auth = () => {
               />
               {errors.password && (
                 <p className="text-sm text-destructive">{errors.password}</p>
+              )}
+              {mode === 'signin' && (
+                <div className="text-right">
+                  <Link
+                    to="/forgot-password"
+                    className="text-xs text-primary hover:underline font-medium"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
+                </div>
               )}
             </div>
 
