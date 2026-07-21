@@ -19,6 +19,9 @@ import Settings from "./pages/Settings";
 import Diario from "./pages/Diario";
 import Colecciones from "./pages/Colecciones";
 import Coleccion from "./pages/Coleccion";
+import Terminos from "./pages/legal/Terminos";
+import Privacidad from "./pages/legal/Privacidad";
+import Copyright from "./pages/legal/Copyright";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +48,9 @@ function App() {
             <Route path="/diario" element={<ProtectedRoute><Diario /></ProtectedRoute>} />
             <Route path="/colecciones" element={<ProtectedRoute><Colecciones /></ProtectedRoute>} />
             <Route path="/colecciones/:slug" element={<ProtectedRoute><Coleccion /></ProtectedRoute>} />
+            <Route path="/terminos" element={<Terminos />} />
+            <Route path="/privacidad" element={<Privacidad />} />
+            <Route path="/copyright" element={<Copyright />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
