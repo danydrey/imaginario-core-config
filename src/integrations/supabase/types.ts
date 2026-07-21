@@ -247,6 +247,48 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["report_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["report_target_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["report_target_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["report_target_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rewards: {
         Row: {
           cost: number
@@ -403,7 +445,8 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      report_status: "pending" | "reviewing" | "resolved" | "dismissed"
+      report_target_type: "experience" | "profile" | "comment"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -530,6 +573,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      report_status: ["pending", "reviewing", "resolved", "dismissed"],
+      report_target_type: ["experience", "profile", "comment"],
+    },
   },
 } as const
