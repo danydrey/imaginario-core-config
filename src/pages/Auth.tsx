@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAuth } from "@/contexts/AuthContext";
 import { Brain, Loader2 } from "lucide-react";
 import { z } from "zod";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: "Email inválido" }).max(255),
@@ -27,6 +28,7 @@ const Auth = () => {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; username?: string }>({});
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -58,6 +60,9 @@ const Auth = () => {
     e.preventDefault();
     
     if (!validateForm()) return;
+    if (mode === 'signup' && !acceptTerms) {
+      return;
+    }
 
     setLoading(true);
     
@@ -153,7 +158,7 @@ const Auth = () => {
             <Button 
               type="submit" 
               className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-              disabled={loading}
+              disabled={loading || (mode === 'signup' && !acceptTerms)}
             >
               {loading ? (
                 <>
@@ -164,6 +169,25 @@ const Auth = () => {
                 mode === 'signin' ? 'Iniciar Sesión' : 'Crear Cuenta'
               )}
             </Button>
+
+            {mode === 'signup' && (
+              <div className="flex items-start gap-2 text-sm">
+                <Checkbox
+                  id="accept-terms"
+                  checked={acceptTerms}
+                  onCheckedChange={(v) => setAcceptTerms(v === true)}
+                  disabled={loading}
+                />
+                <Label htmlFor="accept-terms" className="font-normal leading-snug cursor-pointer">
+                  Acepto los{' '}
+                  <Link to="/terminos" target="_blank" className="text-primary hover:underline">Términos</Link>,{' '}
+                  la{' '}
+                  <Link to="/privacidad" target="_blank" className="text-primary hover:underline">Política de Privacidad</Link>{' '}
+                  y la{' '}
+                  <Link to="/copyright" target="_blank" className="text-primary hover:underline">política de copyright</Link>.
+                </Label>
+              </div>
+            )}
 
             <div className="text-center text-sm">
               {mode === 'signin' ? (
