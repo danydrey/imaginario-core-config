@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { ReportDialog } from "./ReportDialog";
 
 interface ExperienceCardProps {
   id: string;
@@ -189,6 +190,9 @@ export const ExperienceCard = ({
               <Eye className="w-4 h-4" />
               {viewsCount}
             </div>
+          )}
+          {!isOwner && user && (
+            <ReportDialog targetId={id} targetType="experience" />
           )}
         </div>
         
